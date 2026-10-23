@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Committee Portal 2026-27</title>
+
+<!-- Prevents a flash of the gate when the session is already unlocked -->
+<script>
+  try { if (sessionStorage.getItem('committeePortalAuth') === '1') document.documentElement.classList.add('unlocked'); } catch (e) {}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          urdu: ['"Noto Naskh Arabic"', '"Segoe UI"', 'Tahoma', 'serif']
+        },
+        colors: {
+          pine: { 900: '#0A1F1D', 800: '#0F2B28', 700: '#16403B' },
+          brass: { 300: '#EBCB84', 400: '#E0B65C', 500: '#CFA043' }
+        }
+      }
+    }
+  };
+</script>
+
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #0A1F1D; }
+
+  /* Lock / unlock states */
+  html:not(.unlocked) #app { display: none; }
+  html.unlocked #gate { display: none; }
+  #app.reveal { animation: reveal .7s ease both; }
+  @keyframes reveal { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+
+  /* Marquee: right to left, pauses on hover / touch */
+  .ticker { position: relative; overflow: hidden; height: 2.5rem; }
+  .ticker-text {
+    position: absolute; top: 0; left: 0; height: 100%;
+    display: flex; align-items: center; white-space: nowrap;
+    animation: ticker 32s linear infinite;
+    will-change: transform;
+  }
+  @keyframes ticker { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+  .ticker:hover .ticker-text, .ticker.paused .ticker-text { animation-play-state: paused; }
+
+  /* Glass surfaces */
+  .glass {
+    background: rgba(255, 255, 255, .07);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    backdrop-filter: blur(22px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, .16);
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 255, 255, .12);
+  }
+  .glass-soft {
+    background: rgba(255, 255, 255, .05);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, .12);
+    box-shadow: 0 14px 34px -18px rgba(0, 0, 0, .65), inset 0 1px 0 rgba(255, 255, 255, .08);
+  }
+  .glass-soft.card-received {
+    border-color: rgba(52, 211, 153, .65);
+    background: rgba(52, 211, 153, .07);
+    box-shadow: 0 0 30px -6px rgba(52, 211, 153, .5), inset 0 1px 0 rgba(255, 255, 255, .1);
+  }
+  .modal-panel {
+    background: rgba(10, 31, 29, .92);
+    -webkit-backdrop-filter: blur(22px);
+    backdrop-filter: blur(22px);
+    border: 1px solid rgba(255, 255, 255, .16);
+    box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 255, 255, .1);
+  }
+  .shake { animation: shake .4s ease; }
+  @keyframes shake { 20%, 60% { transform: translateX(-7px); } 40%, 80% { transform: translateX(7px); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .ticker-text { animation-duration: 90s; }
+    #app.reveal, .shake { animation: none; }
+  }
+</style>
+</head>
+
+<body class="font-sans text-slate-100 antialiased">
+
+<!-- ============ LAYER 1: MASTER SECURITY GATE ============ -->
+<main id="gate" class="relative min-h-screen flex items-center justify-center p-5 overflow-hidden"
+      style="background: radial-gradient(1100px 600px at 15% 10%, #16403B 0%, transparent 60%), #0A1F1D;">
+  <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-brass-500/30 blur-3xl" aria-hidden="true"></div>
+  <div class="absolute -bottom-32 -right-24 w-[28rem] h-[28rem] rounded-full bg-teal-500/20 blur-3xl" aria-hidden="true"></div>
+
+  <section class="glass relative w-full max-w-md rounded-3xl p-8 sm:p-10" aria-labelledby="gate-title">
+    <div class="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-brass-400/15 ring-1 ring-brass-400/40">
+      <svg class="h-7 w-7 text-brass-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="4" y="10.5" width="16" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor"/>
+      </svg>
+    </div>
+
+    <h1 id="gate-title" class="text-center font-urdu text-3xl font-bold text-white" dir="rtl">کمیٹی پورٹل</h1>
+    <p class="mt-2 text-center font-urdu text-base leading-loose text-slate-300">نجی رسائی۔ جاری رکھنے کے لیے ماسٹر پاس ورڈ درج کریں۔</p>
+
+    <form id="gate-form" class="mt-8 space-y-4" autocomplete="off" novalidate>
+      <div>
+        <label for="master-password" class="mb-2 block font-urdu text-base text-slate-200">ماسٹر پاس ورڈ</label>
+        <div class="relative">
+          <input id="master-password" type="password" placeholder="ماسٹر پاس ورڈ درج کریں"
+                 class="w-full rounded-xl border border-white/15 bg-black/25 py-3 pl-16 pr-4 font-urdu text-white placeholder-slate-400 outline-none transition focus:border-brass-400 focus:ring-2 focus:ring-brass-400/40"
+                 aria-describedby="gate-error" required>
+          <button type="button" id="toggle-pw" class="absolute inset-y-0 left-0 px-4 font-urdu text-sm font-bold text-slate-400 hover:text-brass-300 focus:outline-none focus-visible:text-brass-300" aria-label="پاس ورڈ دکھائیں">دکھائیں</button>
+        </div>
+        <p id="gate-error" role="alert" class="mt-3 hidden rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 font-urdu text-sm leading-relaxed text-red-200"></p>
+      </div>
+
+      <button id="gate-submit" type="submit"
+              class="w-full rounded-xl bg-brass-400 px-4 py-3 font-urdu text-base font-bold text-pine-900 transition hover:bg-brass-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brass-300 focus-visible:ring-offset-2 focus-visible:ring-offset-pine-900 disabled:cursor-not-allowed disabled:opacity-60">
+        پورٹل کھولیں
+      </button>
+    </form>
+  </section>
+</main>
+
+<!-- ============ PROTECTED APP (hidden until unlocked) ============ -->
+<div id="app">
+
+  <!-- Announcement ticker -->
+  <div id="ticker" class="ticker bg-brass-400 text-pine-900" role="marquee" aria-label="Announcement">
+    <div class="ticker-text px-4" dir="rtl">
+      <span class="font-urdu text-base font-bold sm:text-lg">کمیٹی سیشن 2026 تا 2027 — شروعاتی تاریخ: 01 اکتوبر 2026 تا اختتام: 30 ستمبر 2027</span>
+    </div>
+  </div>
+
+  <!-- Main header -->
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-pine-800/90 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
+      <a href="#top" class="font-urdu text-xl font-bold text-white sm:text-2xl" dir="rtl">کمیٹی پورٹل 2026-27</a>
+
+      <nav class="hidden items-center gap-1 sm:flex" aria-label="Main">
+        <a href="#about-us" class="rounded-lg px-3 py-2 font-urdu text-base font-bold text-slate-200 transition hover:bg-white/10 hover:text-brass-300">ہمارے بارے میں</a>
+        <a href="#members" class="rounded-lg px-3 py-2 font-urdu text-base font-bold text-slate-200 transition hover:bg-white/10 hover:text-brass-300">ممبران</a>
+      </nav>
+
+      <button id="logout-btn" type="button"
+              class="ms-auto rounded-lg border border-brass-400/50 px-4 py-2 font-urdu text-base font-bold text-brass-300 transition hover:bg-brass-400 hover:text-pine-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brass-300">
+        لاگ آؤٹ
+      </button>
+    </div>
+
+    <!-- Mobile nav -->
+    <nav class="flex gap-1 border-t border-white/10 px-4 py-2 sm:hidden" aria-label="Main mobile">
+      <a href="#about-us" class="rounded-lg px-3 py-1.5 font-urdu text-base font-bold text-slate-200 hover:bg-white/10">ہمارے بارے میں</a>
+      <a href="#members" class="rounded-lg px-3 py-1.5 font-urdu text-base font-bold text-slate-200 hover:bg-white/10">ممبران</a>
+    </nav>
+  </header>
+
+  <div id="top"></div>
+
+  <div class="relative overflow-hidden" style="background: radial-gradient(900px 500px at 85% 0%, #16403B 0%, transparent 60%), #0A1F1D;">
+    <div class="pointer-events-none absolute -top-20 left-0 h-80 w-80 rounded-full bg-brass-500/15 blur-3xl" aria-hidden="true"></div>
+
+    <main class="relative mx-auto max-w-6xl px-4 sm:px-6">
+
+      <!-- ============ STEP 2: ABOUT US & RULES ============ -->
+      <section id="about-us" class="scroll-mt-28 py-14 sm:py-20" dir="rtl" aria-labelledby="about-title">
+        <h2 id="about-title" class="font-urdu text-2xl font-bold leading-relaxed text-white sm:text-4xl">
+          کمیٹی کی تفصیلات اور قواعد و ضوابط
+        </h2>
+        <div class="mt-3 h-1 w-20 rounded-full bg-brass-400"></div>
+
+        <!-- A) Summary stat cards -->
+        <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <article class="glass-soft rounded-2xl p-6">
+            <p class="font-urdu text-base text-slate-300">کل ممبران</p>
+            <p class="mt-3 font-urdu text-4xl font-bold text-brass-300">12</p>
+          </article>
+
+          <article class="glass-soft rounded-2xl p-6">
+            <p class="font-urdu text-base text-slate-300">کل دورانیہ</p>
+            <p class="mt-3 font-urdu text-4xl font-bold leading-snug text-brass-300">12 ماہ</p>
+            <p class="mt-2 font-urdu text-sm leading-relaxed text-slate-400">01 اکتوبر 2026 تا 30 ستمبر 2027</p>
+          </article>
+
+          <article class="glass-soft rounded-2xl p-6">
+            <p class="font-urdu text-base text-slate-300">ماہانہ قسط</p>
+            <p class="mt-3 font-urdu text-4xl font-bold leading-snug text-brass-300">10,000 <span class="text-xl font-medium text-slate-300">روپے</span></p>
+          </article>
+
+          <article class="glass-soft rounded-2xl p-6">
+            <p class="font-urdu text-base text-slate-300">کل ماہانہ پول</p>
+            <p class="mt-3 font-urdu text-4xl font-bold leading-snug text-brass-300">1,20,000 <span class="text-xl font-medium text-slate-300">روپے</span></p>
+          </article>
+        </div>
+
+        <!-- B) Rules & regulations -->
+        <div class="glass mt-8 rounded-3xl p-6 sm:p-9">
+          <h3 class="font-urdu text-xl font-bold text-white sm:text-2xl">قواعد و ضوابط</h3>
+          <ul class="mt-6 space-y-5">
+            <li class="flex items-start gap-4">
+              <span class="mt-3 h-2.5 w-2.5 shrink-0 rounded-full bg-brass-400" aria-hidden="true"></span>
+              <p class="font-urdu text-lg leading-loose text-slate-100">تمام ممبران ہر ماہ کی 10 تاریخ تک اپنی قسط لازمی جمع کروائیں۔</p>
+            </li>
+            <li class="flex items-start gap-4">
+              <span class="mt-3 h-2.5 w-2.5 shrink-0 rounded-full bg-brass-400" aria-hidden="true"></span>
+              <p class="font-urdu text-lg leading-loose text-slate-100">قرعہ اندازی کی تاریخ کا باقاعدہ اعلان تمام ممبرز کو واٹس ایپ پر پرسنل میسج میں بتا دیا جائے گا۔</p>
+            </li>
+            <li class="flex items-start gap-4">
+              <span class="mt-3 h-2.5 w-2.5 shrink-0 rounded-full bg-brass-400" aria-hidden="true"></span>
+              <p class="font-urdu text-lg leading-loose text-slate-100">تمام 12 مہینوں کی قرعہ اندازی ایک ہی مرتبہ کر لی جائے گی۔ قرعہ اندازی میں جس ممبر کا جس مہینے میں نام نکلے گا، اس ممبر کو اسی مقررہ مہینے میں کمیٹی کی رقم ادا کر دی جائے گی۔</p>
+            </li>
+            <li class="flex items-start gap-4">
+              <span class="mt-3 h-2.5 w-2.5 shrink-0 rounded-full bg-brass-400" aria-hidden="true"></span>
+              <p class="font-urdu text-lg leading-loose text-slate-100">جیز کیش یا کسی شاپ سے قسط بھیجنے کی صورت میں ٹرانسفر فیس ممبر خود ساتھ شامل کر کے سینڈ کرے گا۔ رقم بھیجنے کے بعد اس کی تصویری رسید (سکرین شاٹ یا سلپ) واٹس ایپ پر بھیجنا لازمی ہے، رسید موصول ہوئے بغیر قسط کی جمع شدگی کی تصدیق نہیں کی جائے گی۔</p>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Live financial summary (values are calculated from membersData) -->
+        <div id="live-summary" class="glass mt-8 rounded-3xl p-6 sm:p-9" aria-live="polite">
+          <h3 class="font-urdu text-xl font-bold text-white sm:text-2xl">لائیو مالی خلاصہ</h3>
+
+          <div class="mt-6 grid gap-4 sm:grid-cols-3">
+            <div class="glass-soft rounded-2xl p-5">
+              <p class="font-urdu text-base text-slate-300">کل ممبران</p>
+              <p id="ls-members" class="mt-2 font-urdu text-3xl font-bold text-brass-300"></p>
+            </div>
+            <div class="glass-soft rounded-2xl p-5">
+              <p class="font-urdu text-base text-slate-300">ماہانہ پول</p>
+              <p id="ls-pool" class="mt-2 font-urdu text-3xl font-bold leading-snug text-brass-300"></p>
+              <p id="ls-unit" class="mt-1 font-urdu text-sm text-slate-400"></p>
+            </div>
+            <div class="glass-soft rounded-2xl p-5">
+              <p class="font-urdu text-base text-slate-300">کمیٹی کی وصولی</p>
+              <p id="ls-payouts" class="mt-2 font-urdu text-2xl font-bold leading-snug text-emerald-300"></p>
+            </div>
+          </div>
+
+          <div class="mt-7">
+            <div class="flex items-end justify-between gap-3">
+              <p id="ls-title" class="font-urdu text-base font-bold text-slate-200">اس ماہ کی وصولی کی پیش رفت</p>
+              <p id="ls-percent" class="font-urdu text-xl font-bold text-brass-300"></p>
+            </div>
+            <div id="ls-bar-wrap" class="mt-3 h-4 w-full overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Collection progress">
+              <div id="ls-bar" class="h-full w-0 rounded-full bg-gradient-to-l from-brass-300 to-emerald-400 transition-all duration-700"></div>
+            </div>
+            <p id="ls-collected" class="mt-3 font-urdu text-sm leading-relaxed text-slate-300"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ STEP 3: MEMBERS GRID ============ -->
+      <section id="members" class="scroll-mt-28 pb-24 pt-4 sm:pt-8" dir="rtl" aria-labelledby="members-title">
+        <h2 id="members-title" class="font-urdu text-2xl font-bold leading-relaxed text-white sm:text-4xl">
+          کمیٹی ممبران کی فہرست
+        </h2>
+        <div class="mt-3 h-1 w-20 rounded-full bg-brass-400"></div>
+
+        <!-- Cards are rendered from the MEMBERS array in the script below -->
+        <div id="members-grid" class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"></div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="border-t border-white/10 bg-pine-800/70" dir="rtl">
+    <div class="mx-auto max-w-6xl space-y-2 px-4 py-8 text-center font-urdu leading-loose sm:px-6">
+      <p class="text-slate-100">© 2026-2027 کمیٹی مینجمنٹ پورٹل — تمام حقوق محفوظ ہیں۔</p>
+      <p class="text-slate-300">ڈیزائن و تشکیل: امجد حسین ڈیجیٹل (اے آئی کریئٹر اینڈ ایجوکیٹر)</p>
+      <p class="text-slate-300">کسی بھی تکنیکی مدد یا قسط کی رسید بھیجنے کے لیے واٹس ایپ کریں: <a id="footer-contact" dir="ltr" target="_blank" rel="noopener" style="display:inline-block;" class="font-bold text-brass-300 hover:underline"></a></p>
+    </div>
+  </footer>
+</div>
+
+<!-- ============ LAYER 2: PIN MODAL + MEMBER DASHBOARD ============ -->
+<div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div id="modal-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+
+  <div class="modal-panel relative max-h-[92vh] w-full max-w-md overflow-y-auto rounded-3xl p-6 sm:p-8" id="modal-panel" dir="rtl">
+
+    <!-- View 1: PIN entry -->
+    <div id="pin-view">
+      <h2 id="modal-title" class="font-urdu text-2xl font-bold leading-relaxed text-white">پن درج کریں</h2>
+      <p class="mt-1 font-urdu text-base leading-loose text-slate-300">ممبر: <span id="pin-member-name" class="font-bold text-brass-300"></span></p>
+
+      <form id="pin-form" class="mt-6" autocomplete="off" novalidate>
+        <label for="pin-input" class="mb-2 block font-urdu text-base text-slate-200">اپنا 4 ہندسوں کا پن لکھیں</label>
+        <input id="pin-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" dir="ltr"
+               class="w-full rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-center text-2xl tracking-[.6em] text-white outline-none transition focus:border-brass-400 focus:ring-2 focus:ring-brass-400/40"
+               placeholder="••••" aria-describedby="pin-error">
+        <p id="pin-error" role="alert" class="mt-3 hidden rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 font-urdu text-sm leading-relaxed text-red-200"></p>
+
+        <div class="mt-6 flex gap-3">
+          <button id="pin-submit" type="submit" class="flex-1 rounded-xl bg-brass-400 px-4 py-3 font-urdu text-base font-bold text-pine-900 transition hover:bg-brass-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brass-300 disabled:cursor-not-allowed disabled:opacity-60">تصدیق کریں</button>
+          <button type="button" data-close class="rounded-xl border border-white/20 px-5 py-3 font-urdu text-base font-bold text-slate-200 transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-brass-300">منسوخ</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- View 2: Personal dashboard -->
+    <div id="dash-view" class="hidden">
+      <div class="flex items-start justify-between gap-4">
+        <h2 class="font-urdu text-2xl font-bold leading-relaxed text-white">ممبر ڈیش بورڈ</h2>
+        <button type="button" data-close class="rounded-lg border border-white/20 px-4 py-2 font-urdu text-sm font-bold text-slate-200 transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-brass-300">بند کریں</button>
+      </div>
+
+      <!-- Member details -->
+      <div id="dash-card" class="glass-soft mt-5 grid grid-cols-2 gap-x-4 gap-y-5 rounded-2xl p-5">
+        <div><p class="font-urdu text-sm text-slate-400">نام</p><p id="d-name" class="mt-1 font-urdu text-xl font-bold leading-relaxed text-white"></p></div>
+        <div><p class="font-urdu text-sm text-slate-400">ممبر آئی ڈی</p><p id="d-id" dir="ltr" class="mt-1 text-right text-lg font-bold text-brass-300"></p></div>
+        <div><p class="font-urdu text-sm text-slate-400">کمیٹی کا مہینہ</p><p id="d-month" class="mt-1 font-urdu text-lg font-bold leading-relaxed text-white"></p></div>
+        <div><p class="font-urdu text-sm text-slate-400">کمیٹی کی صورتحال</p><p id="d-status" class="mt-1"></p></div>
+      </div>
+
+      <!-- Payment history -->
+      <div class="mt-7 flex items-end justify-between gap-3">
+        <h3 class="font-urdu text-xl font-bold text-white">12 ماہ کی ادائیگی کی تفصیل</h3>
+        <p id="d-summary" class="font-urdu text-sm text-slate-300"></p>
+      </div>
+
+      <div class="mt-3 overflow-x-auto rounded-2xl border border-white/10">
+        <table class="w-full min-w-[30rem] text-right font-urdu">
+          <thead class="bg-white/5 text-sm text-slate-300">
+            <tr>
+              <th scope="col" class="px-4 py-3 font-bold">ماہ</th>
+              <th scope="col" class="px-4 py-3 font-bold">قسط کی رقم</th>
+              <th scope="col" class="px-4 py-3 font-bold">جمع کی تاریخ</th>
+              <th scope="col" class="px-4 py-3 font-bold">اسٹیٹس</th>
+            </tr>
+          </thead>
+          <tbody id="d-rows" class="divide-y divide-white/10 text-base"></tbody>
+        </table>
+      </div>
+
+      <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+        <button id="wa-btn" type="button" class="flex-1 rounded-xl bg-emerald-500 px-4 py-3 font-urdu text-base font-bold text-white transition hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300">واٹس ایپ پر رسید بھیجیں</button>
+        <button type="button" data-close class="rounded-xl border border-white/20 px-5 py-3 font-urdu text-base font-bold text-slate-200 transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-brass-300">بند کریں</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   📝 ڈیٹا ایڈیٹنگ گائیڈ  |  DATA EDITING GUIDE  — پہلے یہ پڑھیں
+   ============================================================================
+   اس فائل کو Notepad میں کھولیں اور صرف نیچے دیے گئے ڈیٹا (membersData) میں
+   تبدیلی کریں۔ باقی کوڈ (UI لاجک) کو ہاتھ نہ لگائیں۔
+
+   ⚠️ لازمی احتیاط (ورنہ پورٹل کام کرنا بند کر سکتا ہے):
+     • ہر ویلیو "ڈبل کوٹس" کے اندر ہی لکھیں۔ کوٹس ہٹائیں نہیں۔
+     • ہر لائن / ہر آئٹم کے آخر میں کومہ ( , ) موجود رہے۔
+     • { } اور [ ] بریکٹس کو ڈیلیٹ نہ کریں۔
+     • status اور payoutStatus میں صرف یہی دو لفظ لکھیں:  "Paid"  یا  "Pending"
+       (انگریزی میں، پہلا حرف کیپیٹل)
+
+   ✅ عام تبدیلیاں کیسے کریں:
+
+   1) کسی ممبر کو کمیٹی کی رقم مل گئی  (کارڈ سبز ہو جائے گا اور کاؤنٹر بڑھ جائے گا):
+        اس ممبر کی  payoutStatus: "Pending"   کو   payoutStatus: "Paid"   کر دیں۔
+        واپس زیر التواء کرنے کے لیے دوبارہ "Pending" لکھ دیں۔
+
+   2) کسی ممبر کی ماہانہ قسط جمع ہو گئی:
+        اس ممبر کی payments لسٹ میں متعلقہ مہینے کی لائن ڈھونڈیں اور
+        status: "Pending"  کو  status: "Paid"  کریں، اور
+        date: "-"  کی جگہ تاریخ لکھیں، مثال:  date: "Oct 10 2026"
+        (تاریخ انگریزی فارمیٹ میں لکھیں؛ پورٹل خود اسے سیدھا (LTR) دکھاتا ہے)
+
+   3) غلطی سے Paid لگ گیا ہو تو:
+        status: "Pending"  اور  date: "-"  واپس لکھ دیں۔
+
+   4) ممبر کا پن (PIN) بدلنا ہو تو:
+        pin: "1234"   (صرف 4 ہندسے، کوٹس کے اندر)
+
+   5) رابطہ نمبر:
+        WHATSAPP_NUMBER  → رسید والے واٹس ایپ بٹن کا نمبر (ملک کا کوڈ + نمبر، بغیر + اور خالی جگہ)
+                           مثال: 0300 1234567 کو لکھیں  "923001234567"
+        SUPPORT_CONTACT  → فوٹر میں دکھایا جانے والا نمبر، مثال: "0300 1234567"
+
+   6) لائیو مالی خلاصہ (Live Summary) صرف موجودہ مہینے کے پول کی وصولی دکھاتا ہے۔
+        مہینہ آج کی تاریخ سے خود طے ہوتا ہے؛ چاہیں تو CURRENT_MONTH_INDEX میں نمبر لکھ دیں
+        (0 = اکتوبر 2026 ... 11 = ستمبر 2027)۔
+
+   ⚠️ سیکیورٹی نوٹ: پن اور ڈیٹا اسی فائل میں ہیں، اس لیے یہ فائل صرف ٹیسٹنگ / نجی
+      استعمال کے لیے ہے۔ فائل شیئر کرنے سے پہلے اس بات کا خیال رکھیں۔
+   ============================================================================ */
+
+// واٹس ایپ رسید کے لیے ایڈمن کا نمبر (CHANGE THIS)
+const WHATSAPP_NUMBER = "923065331958";
+
+// فوٹر میں دکھایا جانے والا ہنگامی رابطہ / واٹس ایپ سپورٹ نمبر (CHANGE THIS)
+const SUPPORT_CONTACT = "03065331958";
+
+// موجودہ مہینے کا نمبر: 0 = اکتوبر 2026 ... 11 = ستمبر 2027
+// null رکھیں تو آج کی تاریخ سے مہینہ خود طے ہو گا (ٹیسٹنگ کے لیے نمبر لکھ سکتے ہیں)
+const CURRENT_MONTH_INDEX = null;
+
+// ============================================================================
+//  membersData  —  12 ممبران کا مکمل ڈیٹا (MEMBERS DATABASE)
+//  ہر ممبر کے اندر: id, name, pin, payoutMonth, payoutStatus, payments
+// ============================================================================
+const membersData = [
+  // ───────────────────────── ممبر 01 ─────────────────────────
+  {
+    id: 1,
+    name: "امجد حسین",
+    pin: "1655",
+    payoutMonth: "اکتوبر 2026",
+    payoutStatus: "Paid",          // کمیٹی کی رقم کی صورتحال: "Paid" یا "Pending"
+    payments: [                  // 12 ماہ کی اقساط (اکتوبر 2026 تا ستمبر 2027)
+      { month: "اکتوبر 2026", amount: "10,000", status: "Paid", date: "Oct 10 2026" },
+      { month: "نومبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "دسمبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جنوری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "فروری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مارچ 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اپریل 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مئی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جون 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جولائی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اگست 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "ستمبر 2027", amount: "10,000", status: "Pending", date: "-" },
+    ]
+  },
+
+  // ───────────────────────── ممبر 02 ─────────────────────────
+  {
+    id: 2,
+    name: "سدرہ",
+    pin: "4514",
+    payoutMonth: "نومبر 2026",
+    payoutStatus: "Pending",          // کمیٹی کی رقم کی صورتحال: "Paid" یا "Pending"
+    payments: [                  // 12 ماہ کی اقساط (اکتوبر 2026 تا ستمبر 2027)
+      { month: "اکتوبر 2026", amount: "10,000", status: "Paid", date: "Oct 10 2026" },
+      { month: "نومبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "دسمبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جنوری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "فروری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مارچ 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اپریل 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مئی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جون 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جولائی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اگست 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "ستمبر 2027", amount: "10,000", status: "Pending", date: "-" },
+    ]
+  },
+
+  // ───────────────────────── ممبر 03 ─────────────────────────
+  {
+    id: 3,
+    name: "اسجد حسین",
+    pin: "7497",
+    payoutMonth: "دسمبر 2026",
+    payoutStatus: "Pending",          // کمیٹی کی رقم کی صورتحال: "Paid" یا "Pending"
+    payments: [                  // 12 ماہ کی اقساط (اکتوبر 2026 تا ستمبر 2027)
+      { month: "اکتوبر 2026", amount: "10,000", status: "Paid", date: "Oct 10 2026" },
+      { month: "نومبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "دسمبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جنوری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "فروری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مارچ 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اپریل 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مئی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جون 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جولائی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اگست 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "ستمبر 2027", amount: "10,000", status: "Pending", date: "-" },
+    ]
+  },
+
+  // ───────────────────────── ممبر 04 ─────────────────────────
+  {
+    id: 4,
+    name: "محبل",
+    pin: "1211",
+    payoutMonth: "_______",
+    payoutStatus: "Pending",          // کمیٹی کی رقم کی صورتحال: "Paid" یا "Pending"
+    payments: [                  // 12 ماہ کی اقساط (اکتوبر 2026 تا ستمبر 2027)
+      { month: "اکتوبر 2026", amount: "10,000", status: "Paid", date: "-" },
+      { month: "نومبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "دسمبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جنوری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "فروری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مارچ 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اپریل 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مئی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جون 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جولائی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اگست 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "ستمبر 2027", amount: "10,000", status: "Pending", date: "-" },
+    ]
+  },
+
+  // ───────────────────────── ممبر 05 ─────────────────────────
+  {
+    id: 5,
+    name: "مسز شہاب الدین",
+    pin: "3232",
+    payoutMonth: "______",
+    payoutStatus: "Pending",          // کمیٹی کی رقم کی صورتحال: "Paid" یا "Pending"
+    payments: [                  // 12 ماہ کی اقساط (اکتوبر 2026 تا ستمبر 2027)
+      { month: "اکتوبر 2026", amount: "10,000", status: "Paid", date: "Oct 10 2026" },
+      { month: "نومبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "دسمبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جنوری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "فروری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مارچ 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اپریل 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مئی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جون 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جولائی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اگست 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "ستمبر 2027", amount: "10,000", status: "Pending", date: "-" },
+    ]
+  },
+
+  // ───────────────────────── ممبر 06 ─────────────────────────
+  {
+    id: 6,
+    name: "وہاب شاہ",
+    pin: "0021",
+    payoutMonth: "----",
+    payoutStatus: "Pending",          // کمیٹی کی رقم کی صورتحال: "Paid" یا "Pending"
+    payments: [                  // 12 ماہ کی اقساط (اکتوبر 2026 تا ستمبر 2027)
+      { month: "اکتوبر 2026", amount: "10,000", status: "Paid", date: "Oct 10 2026" },
+      { month: "نومبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "دسمبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جنوری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "فروری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مارچ 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اپریل 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مئی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جون 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جولائی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اگست 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "ستمبر 2027", amount: "10,000", status: "Pending", date: "-" },
+    ]
+  },
+
+  // ───────────────────────── ممبر 07 ─────────────────────────
+  {
+    id: 7,
+    name: "انٹی رانی + حمیرہ",
+    pin: "1635",
+    payoutMonth: " ------",
+    payoutStatus: "Pending",          // کمیٹی کی رقم کی صورتحال: "Paid" یا "Pending"
+    payments: [                  // 12 ماہ کی اقساط (اکتوبر 2026 تا ستمبر 2027)
+      { month: "اکتوبر 2026", amount: "10,000", status: "Paid", date: "Oct 10 2026" },
+      { month: "نومبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "دسمبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جنوری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "فروری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مارچ 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اپریل 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مئی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جون 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جولائی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اگست 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "ستمبر 2027", amount: "10,000", status: "Pending", date: "-" },
+    ]
+  },
+
+  // ───────────────────────── ممبر 08 ─────────────────────────
+  {
+    id: 8,
+    name: "مسز عدنان",
+    pin: "3366",
+    payoutMonth: "------ ",
+    payoutStatus: "Pending",          // کمیٹی کی رقم کی صورتحال: "Paid" یا "Pending"
+    payments: [                  // 12 ماہ کی اقساط (اکتوبر 2026 تا ستمبر 2027)
+      { month: "اکتوبر 2026", amount: "10,000", status: "Paid", date: "Oct 10 2026" },
+      { month: "نومبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "دسمبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جنوری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "فروری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مارچ 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اپریل 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مئی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جون 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جولائی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اگست 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "ستمبر 2027", amount: "10,000", status: "Pending", date: "-" },
+    ]
+  },
+
+  // ───────────────────────── ممبر 09 ─────────────────────────
+  {
+    id: 9,
+    name: "مسز اعجاز",
+    pin: "7320",
+    payoutMonth: "_______",
+    payoutStatus: "Pending",          // کمیٹی کی رقم کی صورتحال: "Paid" یا "Pending"
+    payments: [                  // 12 ماہ کی اقساط (اکتوبر 2026 تا ستمبر 2027)
+      { month: "اکتوبر 2026", amount: "10,000", status: "Paid", date: "Oct 10 2026" },
+      { month: "نومبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "دسمبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جنوری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "فروری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مارچ 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اپریل 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مئی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جون 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جولائی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اگست 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "ستمبر 2027", amount: "10,000", status: "Pending", date: "-" },
+    ]
+  },
+
+  // ───────────────────────── ممبر 10 ─────────────────────────
+  {
+    id: 10,
+    name: "مسز ڈاکٹر عبدالرشید چغتہ",
+    pin: "0077",
+    payoutMonth: "--------",
+    payoutStatus: "Pending",          // کمیٹی کی رقم کی صورتحال: "Paid" یا "Pending"
+    payments: [                  // 12 ماہ کی اقساط (اکتوبر 2026 تا ستمبر 2027)
+      { month: "اکتوبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "نومبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "دسمبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جنوری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "فروری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مارچ 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اپریل 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مئی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جون 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جولائی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اگست 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "ستمبر 2027", amount: "10,000", status: "Pending", date: "-" },
+    ]
+  },
+
+  // ───────────────────────── ممبر 11 ─────────────────────────
+  {
+    id: 11,
+    name: "مسز ودود",
+    pin: "7216",
+    payoutMonth: "--------",
+    payoutStatus: "Pending",          // کمیٹی کی رقم کی صورتحال: "Paid" یا "Pending"
+    payments: [                  // 12 ماہ کی اقساط (اکتوبر 2026 تا ستمبر 2027)
+      { month: "اکتوبر 2026", amount: "10,000", status: "Paid", date: "Oct 10 2026" },
+      { month: "نومبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "دسمبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جنوری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "فروری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مارچ 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اپریل 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مئی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جون 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جولائی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اگست 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "ستمبر 2027", amount: "10,000", status: "Pending", date: "-" },
+    ]
+  },
+
+  // ───────────────────────── ممبر 12 ─────────────────────────
+  {
+    id: 12,
+    name: "انٹی شہناز + انٹی سعیدہ",
+    pin: "1012",
+    payoutMonth: "-------",
+    payoutStatus: "Pending",          // کمیٹی کی رقم کی صورتحال: "Paid" یا "Pending"
+    payments: [                  // 12 ماہ کی اقساط (اکتوبر 2026 تا ستمبر 2027)
+      { month: "اکتوبر 2026", amount: "10,000", status: "Paid", date: "Oct 10 2026" },
+      { month: "نومبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "دسمبر 2026", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جنوری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "فروری 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مارچ 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اپریل 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "مئی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جون 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "جولائی 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "اگست 2027", amount: "10,000", status: "Pending", date: "-" },
+      { month: "ستمبر 2027", amount: "10,000", status: "Pending", date: "-" },
+    ]
+  },
+];
+// ======================= membersData ختم (END OF DATA) =======================
+
+(function () {
+  'use strict';
+
+  // ---- CONFIG (testing only: client-side passwords are not real security) ----
+  const MASTER_PASSWORD = 'Committee2026';
+  const SESSION_KEY     = 'committeePortalAuth';
+  const MAX_ATTEMPTS    = 5;
+  const LOCKOUT_SECONDS = 30;
+
+  const root   = document.documentElement;
+  const app    = document.getElementById('app');
+  const form   = document.getElementById('gate-form');
+  const input  = document.getElementById('master-password');
+  const errBox = document.getElementById('gate-error');
+  const submit = document.getElementById('gate-submit');
+  const toggle = document.getElementById('toggle-pw');
+  const ticker = document.getElementById('ticker');
+  let attempts = 0;
+
+  const store = {
+    get: k => { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
+    set: (k, v) => { try { sessionStorage.setItem(k, v); } catch (e) {} },
+    del: k => { try { sessionStorage.removeItem(k); } catch (e) {} }
+  };
+
+  function showError(msg) {
+    errBox.textContent = msg;
+    errBox.classList.remove('hidden');
+    input.classList.remove('shake'); void input.offsetWidth; input.classList.add('shake');
+  }
+
+  function unlock() {
+    store.set(SESSION_KEY, '1');
+    root.classList.add('unlocked');
+    app.classList.remove('reveal'); void app.offsetWidth; app.classList.add('reveal');
+    input.value = '';
+    errBox.classList.add('hidden');
+    window.scrollTo(0, 0);
+  }
+
+  function lock() {
+    store.del(SESSION_KEY);
+    root.classList.remove('unlocked');
+    app.classList.remove('reveal');
+    closeModal();
+    attempts = 0;
+    input.focus();
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (submit.disabled) return;
+
+    if (input.value === MASTER_PASSWORD) { unlock(); return; }
+
+    attempts++;
+    input.value = '';
+    if (attempts >= MAX_ATTEMPTS) {
+      let left = LOCKOUT_SECONDS;
+      submit.disabled = true; input.disabled = true;
+      const tick = setInterval(function () {
+        showError('بہت زیادہ غلط کوششیں۔ ' + left + ' سیکنڈ بعد دوبارہ کوشش کریں۔');
+        if (--left < 0) {
+          clearInterval(tick);
+          submit.disabled = false; input.disabled = false; attempts = 0;
+          errBox.classList.add('hidden'); input.focus();
+        }
+      }, 1000);
+    } else {
+      showError('غلط پاس ورڈ۔ ' + (MAX_ATTEMPTS - attempts) + ' کوشش باقی ہے۔');
+      input.focus();
+    }
+  });
+
+  input.addEventListener('input', () => errBox.classList.add('hidden'));
+
+  toggle.addEventListener('click', function () {
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    toggle.textContent = show ? 'چھپائیں' : 'دکھائیں';
+    toggle.setAttribute('aria-label', show ? 'پاس ورڈ چھپائیں' : 'پاس ورڈ دکھائیں');
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', lock);
+
+  // Pause ticker on touch
+  ticker.addEventListener('touchstart', () => ticker.classList.add('paused'), { passive: true });
+  ['touchend', 'touchcancel'].forEach(ev => ticker.addEventListener(ev, () => ticker.classList.remove('paused'), { passive: true }));
+
+  // ---- MEMBERS GRID + LAYER-2 PIN + DASHBOARD (all rendered from membersData) ----
+  const MEMBERS     = membersData;
+  const PIN_MAX_TRIES = 3;
+  const PIN_LOCK_SECS = 30;
+
+  const pad = n => String(n).padStart(2, '0');
+  const $ = id => document.getElementById(id);
+  const isPaid = s => String(s).trim().toLowerCase() === 'paid';   // anything else counts as Pending
+
+  const BADGE_OK   = 'inline-block rounded-full bg-emerald-400/15 px-3 py-1 font-urdu text-sm font-bold leading-relaxed text-emerald-300 ring-1 ring-emerald-400/40';
+  const BADGE_WAIT = 'inline-block rounded-full bg-amber-400/15 px-3 py-1 font-urdu text-sm font-bold leading-relaxed text-amber-200 ring-1 ring-amber-400/40';
+  const payoutLabel = m => isPaid(m.payoutStatus) ? 'کمیٹی موصول شدہ ✅' : 'کمیٹی زیر التواء ⏳';
+
+  // Friendly data check: open the browser console (F12) to see warnings if an edit went wrong
+  MEMBERS.forEach(function (m) {
+    if (!/^\d{4}$/.test(String(m.pin))) console.warn('membersData: Member ' + m.id + ' PIN must be exactly 4 digits.');
+    if (!Array.isArray(m.payments) || m.payments.length !== 12) console.warn('membersData: Member ' + m.id + ' should have exactly 12 payments.');
+  });
+
+  // ---- Members grid ----
+  const grid = $('members-grid');
+  MEMBERS.forEach(function (m) {
+    const received = isPaid(m.payoutStatus);
+
+    const card = document.createElement('article');
+    card.className = 'glass-soft flex flex-col rounded-2xl p-6 transition' + (received ? ' card-received' : '');
+
+    const badge = document.createElement('span');
+    badge.className = 'self-start rounded-full bg-brass-400/15 px-3 py-1 text-xs font-semibold text-brass-300 ring-1 ring-brass-400/30';
+    badge.setAttribute('dir', 'ltr');
+    badge.textContent = 'Member ' + pad(m.id);
+
+    const title = document.createElement('h3');
+    title.className = 'mt-5 flex min-h-[4.5rem] items-center font-urdu text-2xl font-bold leading-loose text-white';
+    title.textContent = m.name;
+
+    const status = document.createElement('span');
+    status.className = (received ? BADGE_OK : BADGE_WAIT) + ' self-start';
+    status.textContent = payoutLabel(m);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mt-6 w-full rounded-xl border border-brass-400/50 px-4 py-2.5 font-urdu text-base font-bold text-brass-300 transition hover:bg-brass-400 hover:text-pine-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brass-300';
+    btn.textContent = 'مزید تفصیلات کے لیے';
+    btn.addEventListener('click', function () { openPin(m, btn); });
+
+    card.append(badge, title, status, btn);
+    grid.appendChild(card);
+  });
+
+  // ---- Modal logic ----
+  const modal     = $('modal');
+  const pinView   = $('pin-view');
+  const dashView  = $('dash-view');
+  const pinForm   = $('pin-form');
+  const pinInput  = $('pin-input');
+  const pinError  = $('pin-error');
+  let current = null, lastTrigger = null;
+  const pinTries = {}, pinLockUntil = {};
+
+  function showModal() { modal.classList.remove('hidden'); modal.classList.add('flex'); document.body.style.overflow = 'hidden'; }
+
+  function openPin(member, trigger) {
+    current = member; lastTrigger = trigger;
+    $('pin-member-name').textContent = member.name;
+    pinInput.value = ''; pinError.classList.add('hidden');
+    dashView.classList.add('hidden'); pinView.classList.remove('hidden');
+    showModal();
+    setTimeout(() => pinInput.focus(), 30);
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden'); modal.classList.remove('flex');
+    document.body.style.overflow = '';
+    pinInput.value = ''; pinError.classList.add('hidden');
+    $('d-rows').textContent = '';          // clear personal data from the DOM
+    dashView.classList.add('hidden'); pinView.classList.remove('hidden');
+    current = null;
+    if (lastTrigger && root.classList.contains('unlocked')) lastTrigger.focus();
+    lastTrigger = null;
+  }
+
+  function pinFail(msg) {
+    pinError.textContent = msg; pinError.classList.remove('hidden');
+    pinInput.classList.remove('shake'); void pinInput.offsetWidth; pinInput.classList.add('shake');
+  }
+
+  pinInput.addEventListener('input', function () {
+    pinInput.value = pinInput.value.replace(/\D/g, '');
+    pinError.classList.add('hidden');
+  });
+
+  pinForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!current) return;
+    const id = current.id;
+    const wait = Math.ceil(((pinLockUntil[id] || 0) - Date.now()) / 1000);
+    if (wait > 0) { pinFail('بہت زیادہ غلط کوششیں۔ ' + wait + ' سیکنڈ بعد دوبارہ کوشش کریں۔'); return; }
+
+    if (pinInput.value === String(current.pin)) {
+      pinTries[id] = 0;
+      renderDashboard(current);
+      return;
+    }
+    pinTries[id] = (pinTries[id] || 0) + 1;
+    pinInput.value = '';
+    if (pinTries[id] >= PIN_MAX_TRIES) {
+      pinTries[id] = 0; pinLockUntil[id] = Date.now() + PIN_LOCK_SECS * 1000;
+      pinFail('بہت زیادہ غلط کوششیں۔ ' + PIN_LOCK_SECS + ' سیکنڈ بعد دوبارہ کوشش کریں۔');
+    } else {
+      pinFail('غلط پن۔ ' + (PIN_MAX_TRIES - pinTries[id]) + ' کوشش باقی ہے۔');
+    }
+    pinInput.focus();
+  });
+
+  // Builds the whole dashboard directly from the member's object in membersData
+  function renderDashboard(m) {
+    const received = isPaid(m.payoutStatus);
+    const payments = Array.isArray(m.payments) ? m.payments : [];
+
+    $('d-name').textContent  = m.name;
+    $('d-id').textContent    = 'Member ' + pad(m.id);
+    $('d-month').textContent = m.payoutMonth;
+    const st = $('d-status'); st.textContent = '';
+    const stBadge = document.createElement('span');
+    stBadge.className = received ? BADGE_OK : BADGE_WAIT;
+    stBadge.textContent = payoutLabel(m);
+    st.appendChild(stBadge);
+    $('dash-card').classList.toggle('card-received', received);
+
+    const rows = $('d-rows'); rows.textContent = '';
+    let paidCount = 0, firstPending = null;
+
+    payments.forEach(function (p) {
+      const paid = isPaid(p.status);
+      if (paid) paidCount++; else if (!firstPending) firstPending = p;
+
+      const tr = document.createElement('tr');
+      tr.className = paid ? 'bg-emerald-400/10' : '';
+
+      [p.month, p.amount + ' روپے', p.date || '-'].forEach(function (text, c) {
+        const td = document.createElement('td');
+        td.className = 'px-4 py-3 leading-loose ' + (c === 0 ? 'font-bold text-white' : 'text-slate-200');
+        if (c === 2) {   // dates stay left-to-right so day/month order is not reversed in RTL
+          const d = document.createElement('span');
+          d.setAttribute('dir', 'ltr'); d.style.display = 'inline-block'; d.textContent = text;
+          td.appendChild(d);
+        } else { td.textContent = text; }
+        tr.appendChild(td);
+      });
+
+      const tdStatus = document.createElement('td');
+      tdStatus.className = 'px-4 py-3';
+      const b = document.createElement('span');
+      b.className = paid ? BADGE_OK : BADGE_WAIT;
+      b.textContent = paid ? 'ادا شدہ ✅' : 'زیر التواء ⏳';
+      tdStatus.appendChild(b);
+      tr.appendChild(tdStatus);
+      rows.appendChild(tr);
+    });
+
+    $('d-summary').textContent = paidCount + ' / ' + payments.length + ' اقساط ادا شدہ';
+
+    $('wa-btn').onclick = function () {
+      const msg = 'السلام علیکم! ممبر: ' + m.name + ' (Member ' + pad(m.id) + ')۔ ' +
+                  (firstPending ? firstPending.month + ' کی قسط (' + firstPending.amount + ' روپے) کی ' : '') +
+                  'رسید ارسال ہے۔';
+      window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+    };
+
+    pinView.classList.add('hidden'); dashView.classList.remove('hidden');
+    $('modal-panel').scrollTop = 0;
+  }
+
+  modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeModal));
+  $('modal-backdrop').addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal(); });
+
+  // ---- Live financial summary (CURRENT MONTH's pool only) + footer ----
+  function currentMonthIndex() {
+    const last = Math.max(0, (MEMBERS[0] && MEMBERS[0].payments ? MEMBERS[0].payments.length : 12) - 1);
+    let idx = Number.isInteger(CURRENT_MONTH_INDEX)
+      ? CURRENT_MONTH_INDEX
+      : (new Date().getFullYear() - 2026) * 12 + new Date().getMonth() - 9;   // Oct 2026 = 0
+    return Math.max(0, Math.min(last, idx));
+  }
+
+  function renderSummary() {
+    const amt = v => parseInt(String(v).replace(/\D/g, ''), 10) || 0;
+    const fmt = n => n.toLocaleString('en-IN');
+    const idx = currentMonthIndex();
+
+    let paidN = 0, got = 0, target = 0, monthName = '';
+    MEMBERS.forEach(function (m) {
+      const p = m.payments && m.payments[idx];
+      if (!p) return;
+      monthName = monthName || p.month;
+      target += amt(p.amount);
+      if (isPaid(p.status)) { paidN++; got += amt(p.amount); }
+    });
+    const unit = MEMBERS.length ? Math.round(target / MEMBERS.length) : 0;
+    const payouts = MEMBERS.filter(m => isPaid(m.payoutStatus)).length;
+    const pct = target ? got / target * 100 : 0;
+    const pctText = parseFloat(pct.toFixed(2)) + '%';        // e.g. 8.33%
+
+    $('ls-members').textContent   = MEMBERS.length;
+    $('ls-pool').textContent      = fmt(target) + ' روپے';
+    $('ls-unit').textContent      = '(' + fmt(unit) + ' روپے فی ممبر)';
+    $('ls-payouts').textContent   = payouts + ' / ' + MEMBERS.length + ' کمیٹیاں موصول شدہ';
+    $('ls-title').textContent     = 'اس ماہ کی وصولی کی پیش رفت' + (monthName ? ' — ' + monthName : '');
+    $('ls-percent').textContent   = pctText;
+    $('ls-bar').style.width       = pct + '%';
+    $('ls-bar-wrap').setAttribute('aria-valuenow', String(Math.round(pct)));
+    $('ls-collected').textContent = fmt(got) + ' / ' + fmt(target) + ' روپے (' + paidN + ' / ' + MEMBERS.length + ' اقساط ادا شدہ)';
+  }
+  renderSummary();
+  const fc = $('footer-contact');
+  fc.textContent = SUPPORT_CONTACT;
+  fc.href = 'https://wa.me/' + WHATSAPP_NUMBER;
+
+  // Sync state if session was already unlocked on load
+  if (store.get(SESSION_KEY) === '1') root.classList.add('unlocked');
+})();
+</script>
+</body>
+</html>
